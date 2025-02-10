@@ -1,29 +1,20 @@
-require("dotenv").config();
+require('dotenv').config(); // Load environment variables
 
-const mysql = require('mysql2');
-const fs = require('fs'); // To read the CA certificate
+const express = require('express');
+const cors = require('cors');
 
-// Create a connection to the database using SSL (with CA certificate)
-const db = mysql.createConnection({
-    host: process.env.DB_HOST,        // DigitalOcean database IP/hostname
-    user: process.env.DB_USER,        // MySQL user
-    password: process.env.DB_PASSWORD, // MySQL password
-    database: process.env.DB_NAME,    // MySQL database name
-    port: process.env.DB_PORT, // Default MySQL port
-    // ssl: {
-    //     ca: fs.readFileSync('./ca-certificate.crt')  // Path to the CA certificate
-    // }
+const app = express();
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+
+// Import API routes
+const usersRoutes = require('./routes/users');
+app.use('/api/users', usersRoutes); // Use the users route
+
+// Start server
+const PORT = process.env.DB_PORT;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 });
-
-// Connect to the database and handle any errors
-db.connect(async (err) => {
-    if (err) {
-        console.error('Database connection failed:', err);
-        process.exit(1);
-    } else {
-        console.log('Connected to MySQL ' + process.env.DB_NAME + ' database!');
-    }
-});
-
-// Export the db connection to be used in other files
-module.exports = db;
