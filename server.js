@@ -9,9 +9,13 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Import API routes
-const usersRoutes = require('./routes/users');
-app.use('/api/users', usersRoutes); // Use the users route
+// Import route files
+const matchDataRoutes = require('./routes/matchData'); // Import match data route
+
+// Import the API routes
+// const usersRoutes = require('./routes/users');
+// app.use('/api/users', usersRoutes); // Use the users route
+app.use('/api/match-data', matchDataRoutes); // Register match data route
 
 // Start server
 const PORT = process.env.DB_PORT;
