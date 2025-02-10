@@ -1,36 +1,29 @@
-require('dotenv').config();
-const express = require('express');
+require("dotenv").config();
+
 const mysql = require('mysql2');
-const cors = require('cors');
+const fs = require('fs'); // To read the CA certificate
 
-const app = express();
-app.use(cors());
-app.use(express.json());
-
+// Create a connection to the database using SSL (with CA certificate)
 const db = mysql.createConnection({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    port: process.env.PORT,
+    host: process.env.DB_HOST,        // DigitalOcean database IP/hostname
+    user: process.env.DB_USER,        // MySQL user
+    password: process.env.DB_PASSWORD, // MySQL password
+    database: process.env.DB_NAME,    // MySQL database name
+    port: process.env.DB_PORT, // Default MySQL port
+    // ssl: {
+    //     ca: fs.readFileSync('./ca-certificate.crt')  // Path to the CA certificate
+    // }
 });
 
-db.connect(err => {
+// Connect to the database and handle any errors
+db.connect(async (err) => {
     if (err) {
         console.error('Database connection failed:', err);
+        process.exit(1);
     } else {
-        console.log('Connected to MySQL database');
+        console.log('Connected to MySQL ' + process.env.DB_NAME + ' database!');
     }
 });
 
-app.get('/api/data', (req, res) => {
-    db.query('SELECT * FROM your_table', (err, results) => {
-        if (err) {
-            return res.status(500).send(err);
-        }
-        res.json(results);
-    });
-});
-
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+// Export the db connection to be used in other files
+module.exports = db;
